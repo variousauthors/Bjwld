@@ -1,10 +1,6 @@
 love.viewport = require('libs/viewport').newSingleton()
 
-function love.draw()
-    love.graphics.push()
-    love.graphics.scale(game.scale, game.scale)
-
-    local cells = game.board.cells
+function draw_board(cells)
     local w = game.constants.cell_dim
     local h = game.constants.cell_dim
     local gutter = game.constants.cell_gutter
@@ -27,6 +23,29 @@ function love.draw()
             end
         end
     end
+end
+
+function love.draw()
+    love.graphics.push()
+    love.graphics.scale(game.scale, game.scale)
+
+    local w = game.constants.cell_dim
+    local h = game.constants.cell_dim
+    local gutter = game.constants.cell_gutter
+
+    local x = game.cursor.x
+    local y = game.cursor.y
+
+    x = x * gutter + ((x - 1) * w)
+    y = y * gutter + ((y - 1) * h)
+
+    love.graphics.setColor({ 200, 0, 0 })
+    love.graphics.rectangle("fill", x, y, w, h)
+    love.graphics.setColor({ 255, 255, 255 })
+
+    local cells = game.board.cells
+
+    draw_board(cells)
 
     love.graphics.scale(1)
     love.graphics.pop()

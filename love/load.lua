@@ -19,6 +19,13 @@ function love.load()
         cells = {}
     }
 
+    game.cursor = {
+        x = math.ceil(game.constants.width / 2),
+        y = game.constants.height / 2,
+    }
+
+    print(game.cursor.x, game.cursor.y)
+
     for y = 1, game.constants.height, 1 do
         game.board.cells[y] = {}
 

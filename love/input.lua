@@ -7,6 +7,8 @@ love.inputman = require('libs/inputman').newSingleton()
 function love.inputpressed(state)
     love.debug.printIf('input', 'pressed:', state)
 
+    game.cursor.input = state
+
     -- An example of input/sound
     if(state == 'select') then love.soundman.run('select') end
 end
