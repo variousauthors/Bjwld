@@ -1,6 +1,8 @@
 love.viewport = require('libs/viewport').newSingleton()
 
 function draw_board(cells)
+    love.graphics.push()
+
     local w = game.constants.cell_dim
     local h = game.constants.cell_dim
     local gutter = game.constants.cell_gutter
@@ -16,18 +18,21 @@ function draw_board(cells)
 
                 love.graphics.setColor({ 50, 50, 50 })
                 love.graphics.rectangle("fill", x + w/2 - 0.5, y + h/2 - 0.5, 1, 1)
-                love.graphics.setColor({ 255, 255, 255 })
             else
 
+                local color = COLOR_RGB[COLORS[cell]]
+
+                love.graphics.setColor(color)
                 love.graphics.rectangle("fill", x, y, w, h)
             end
         end
     end
+
+    love.graphics.pop()
 end
 
-function love.draw()
+function draw_cursor()
     love.graphics.push()
-    love.graphics.scale(game.scale, game.scale)
 
     local w = game.constants.cell_dim
     local h = game.constants.cell_dim
@@ -39,13 +44,37 @@ function love.draw()
     x = x * gutter + ((x - 1) * w)
     y = y * gutter + ((y - 1) * h)
 
-    love.graphics.setColor({ 200, 0, 0 })
-    love.graphics.rectangle("fill", x, y, w, h)
-    love.graphics.setColor({ 255, 255, 255 })
+    love.graphics.setColor({ 250, 250, 250 })
+
+    -- A CURSOR
+
+    -- TOP LEFT
+    love.graphics.line(x, y, x, y + 2)
+    love.graphics.line(x, y, x + 2, y)
+
+    -- TOP RIGHT
+    love.graphics.line(x + w, y, x + w, y + 2)
+    love.graphics.line(x + w, y, x + w - 2, y)
+
+    -- BOTTOM LEFT
+    love.graphics.line(x, y + h, x, y + h - 2)
+    love.graphics.line(x, y + h, x + 2, y + h)
+
+    -- BOTTOM RIGHT
+    love.graphics.line(x + w, y + h, x + w, y + h - 2)
+    love.graphics.line(x + w, y + h, x + w - 2, y + h)
+
+    love.graphics.pop()
+end
+
+function love.draw()
+    love.graphics.push()
+    love.graphics.scale(game.scale, game.scale)
 
     local cells = game.board.cells
 
     draw_board(cells)
+    draw_cursor()
 
     love.graphics.scale(1)
     love.graphics.pop()
