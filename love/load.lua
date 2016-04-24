@@ -17,6 +17,13 @@ COLOR_RGB = {
     cyan = { 0, 200, 200 },
 }
 
+DIRECTIONS = {
+    { x = 0, y = 1 },
+    { x = 1, y = 0 },
+    { x = -1, y = 0 },
+    { x = 0, y = -1 },
+}
+
 function get_random_color()
    return math.random(1, #(COLORS))
 end
@@ -56,14 +63,22 @@ function love.load()
 
     game.active_cursor = game.select_cursor
 
-    for y = 1, game.constants.height, 1 do
-        game.board.cells[y] = {}
+    local bad_board = true
 
-        for x = 1, game.constants.width, 1 do
-            game.board.cells[y][x] = get_random_color()
+    while (bad_board) do
+        for y = 1, game.constants.height, 1 do
+            game.board.cells[y] = {}
+
+            for x = 1, game.constants.width, 1 do
+                game.board.cells[y][x] = get_random_color()
+            end
         end
+
+        game.board.height = #(game.board.cells)
+        game.board.width = #(game.board.cells[1])
+
+        local groups = board_all_matches(game.board)
+        bad_board = #(groups) > 0
     end
 
-    game.board.height = #(game.board.cells)
-    game.board.width = #(game.board.cells[1])
 end
