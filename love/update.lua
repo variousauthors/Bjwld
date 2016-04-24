@@ -67,6 +67,7 @@ function love.update(dt)
                 if (game.swap_cursor.x ~= game.select_cursor.x or game.swap_cursor.y ~= game.select_cursor.y) then
                     should_swap = true
                 end
+
             end
         end
     end
@@ -85,6 +86,9 @@ function love.update(dt)
         local tmp = cells[y1][x1]
         cells[y1][x1] = cells[y2][x2]
         cells[y2][x2] = tmp
+
+        game.select_cursor.x = game.swap_cursor.x
+        game.select_cursor.y = game.swap_cursor.y
     end
 
     -- TODO check the board for rows or cols
@@ -141,7 +145,7 @@ end
 function board_get_cell(board, x, y)
     local cell = nil
 
-    if (x > 0 and x < board.width) and (y > 0 and y < board.height) then
+    if (x > 0 and x < board.width + 1) and (y > 0 and y < board.height + 1) then
         cell = board.cells[y][x]
     end
 

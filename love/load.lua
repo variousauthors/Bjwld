@@ -1,20 +1,20 @@
 EMPTY = 'empty'
 RED = 'red'
-BLUE = 'blue'
-PURPLE = 'purple'
-ORANGE = 'orange'
-YELLOW = 'yellow'
 GREEN = 'green'
+BLUE = 'blue'
+YELLOW = 'yellow'
+PURPLE = 'purple'
+CYAN = 'cyan'
 
-COLORS = { RED, GREEN, BLUE, PURPLE, ORANGE, YELLOW }
+COLORS = { RED, GREEN, BLUE, YELLOW, PURPLE, CYAN }
 
 COLOR_RGB = {
     red = { 200, 0, 0 },
-    blue = { 0, 0, 200 },
     green = { 0, 200, 0 },
-    purple = { 200, 0, 200 },
+    blue = { 0, 0, 200 },
     yellow = { 200, 200, 0 },
-    orange = { 0, 200, 200 },
+    purple = { 200, 0, 200 },
+    cyan = { 0, 200, 200 },
 }
 
 function get_random_color()
