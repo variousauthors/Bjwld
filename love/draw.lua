@@ -31,15 +31,15 @@ function draw_board(cells)
     love.graphics.pop()
 end
 
-function draw_cursor()
+function draw_cursor(cursor)
     love.graphics.push()
 
     local w = game.constants.cell_dim
     local h = game.constants.cell_dim
     local gutter = game.constants.cell_gutter
 
-    local x = game.cursor.x
-    local y = game.cursor.y
+    local x = cursor.x
+    local y = cursor.y
 
     x = x * gutter + ((x - 1) * w)
     y = y * gutter + ((y - 1) * h)
@@ -71,10 +71,11 @@ function love.draw()
     love.graphics.push()
     love.graphics.scale(game.scale, game.scale)
 
-    local cells = game.board.cells
+    draw_board(game.board.cells)
 
-    draw_board(cells)
-    draw_cursor()
+    draw_cursor(game.select_cursor)
+
+    if (game.swap_cursor.active == true) then draw_cursor(game.swap_cursor) end
 
     love.graphics.scale(1)
     love.graphics.pop()

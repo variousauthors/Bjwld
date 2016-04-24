@@ -40,12 +40,21 @@ function love.load()
         cells = {}
     }
 
-    game.cursor = {
+    game.select_cursor = {
         x = math.ceil(game.constants.width / 2),
         y = math.ceil(game.constants.height / 2),
+        active = true,
+        input = nil,
     }
 
-    print(game.cursor.x, game.cursor.y)
+    game.swap_cursor = {
+        x = game.select_cursor.x,
+        y = game.select_cursor.y,
+        active = false,
+        input = nil,
+    }
+
+    game.active_cursor = game.select_cursor
 
     for y = 1, game.constants.height, 1 do
         game.board.cells[y] = {}
