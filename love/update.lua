@@ -8,12 +8,15 @@ function love.update(dt)
     if (game.active_cursor.input ~= nil) then
 
         if (game.select_cursor.active == true) then
+            -- move the select cursor freely around the board
 
             if (game.active_cursor.input == 'up') then game.active_cursor.y = game.active_cursor.y - 1 end
             if (game.active_cursor.input == 'down') then game.active_cursor.y = game.active_cursor.y + 1 end
             if (game.active_cursor.input == 'left') then game.active_cursor.x = game.active_cursor.x - 1 end
             if (game.active_cursor.input == 'right') then game.active_cursor.x = game.active_cursor.x + 1 end
+
         elseif (game.swap_cursor.active == true) then
+            -- set the swap cursor to a cardinal offset from the select cursor
 
             if (game.active_cursor.input == 'up') then
                 game.active_cursor.y = game.select_cursor.y - 1
@@ -68,6 +71,8 @@ function love.update(dt)
         end
     end
 
+    game.active_cursor.input = nil
+
     if (should_swap) then
         local x1 = game.select_cursor.x
         local y1 = game.select_cursor.y
@@ -82,5 +87,63 @@ function love.update(dt)
         cells[y2][x2] = tmp
     end
 
-    game.active_cursor.input = nil
+    -- TODO check the board for rows or cols
+
+    local cells = game.board.cells
+    local dirs = {
+        { x = 0, y = 1 },
+        { x = 1, y = 0 },
+        { x = -1, y = 0 },
+        { x = 0, y = -1 },
+    }
+
+    for y = 1, #(cells), 1 do
+        for x = 1, #(cells[y]), 1 do
+            local cell = cells[y][x]
+
+            for i = 1, #(dirs), 1 do
+                local dir = dirs[i]
+                local dx = dir.x
+                local dy = dir.y
+                local nx = x + dx
+                local ny = y + dy
+
+                local neighbour = board_get_cell(game.board, nx, ny)
+                local group = { build_entry(cell, x, y) }
+
+                while (neighbour and neighbour == cell) do
+                    table.insert(group, build_entry(neighbour, nx, ny))
+
+                    nx = nx + dx
+                    ny = ny + dy
+                    neighbour = board_get_cell(game.board, nx, ny)
+                end
+
+                if #(group) > 2 then
+                    for j = 1, #(group), 1 do
+                        local cell = group[j]
+
+                        game.board.cells[cell.y][cell.x] = 'empty'
+                    end
+                end
+            end
+        end
+    end
+end
+
+function build_entry(color, x, y)
+    return {
+         color = color,
+         x = x,
+         y = y
+    }
+end
+function board_get_cell(board, x, y)
+    local cell = nil
+
+    if (x > 0 and x < board.width) and (y > 0 and y < board.height) then
+        cell = board.cells[y][x]
+    end
+
+    return cell
 end

@@ -8,8 +8,8 @@ function draw_board(cells)
     local gutter = game.constants.cell_gutter
 
     for y = 1, #(cells), 1 do
-
         for x = 1, #(cells[y]), 1 do
+
             local cell = cells[y][x]
             local x = (x * gutter) + ((x - 1) * w)
             local y = (y * gutter) + ((y - 1) * h)

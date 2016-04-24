@@ -4,7 +4,7 @@ BLUE = 'blue'
 PURPLE = 'purple'
 ORANGE = 'orange'
 YELLOW = 'yellow'
-GREEN = 'yellow'
+GREEN = 'green'
 
 COLORS = { RED, GREEN, BLUE, PURPLE, ORANGE, YELLOW }
 
@@ -63,4 +63,7 @@ function love.load()
             game.board.cells[y][x] = get_random_color()
         end
     end
+
+    game.board.height = #(game.board.cells)
+    game.board.width = #(game.board.cells[1])
 end
