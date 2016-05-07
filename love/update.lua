@@ -148,8 +148,21 @@ function board_update(board, dt)
     board.stable = false
 
     for y = #(cells), 1, -1 do
+
         for x = 1, #(cells[y]), 1 do
             local cell = board_get_cell(board, x, y)
+
+            -- check for empty cells at the top of the board
+            if y == 1 then
+                if cell ~= nil and cell.color == EMPTY then
+                    cell = build_block()
+                    cell.drawable.x = x
+                    cell.drawable.y = y - 1
+                    cell.motion = { x = x, y = y }
+
+                    cells[y][x] = cell
+                end
+            end
 
             if (cell ~= nil and cell.color ~= EMPTY) then
 
@@ -174,8 +187,8 @@ function board_update(board, dt)
                     local nx = adjust(cell.drawable.x, cell.motion.x)
                     local ny = adjust(cell.drawable.y, cell.motion.y)
 
-                    cell.drawable.x = cell.drawable.x + nx * dt
-                    cell.drawable.y = cell.drawable.y + ny * dt
+                    cell.drawable.x = cell.drawable.x + nx * dt * game.constants.block_fall_speed
+                    cell.drawable.y = cell.drawable.y + ny * dt * game.constants.block_fall_speed
 
                     local dist = math.pow(cell.motion.x - cell.drawable.x, 2) + math.pow(cell.motion.y - cell.drawable.y, 2)
 

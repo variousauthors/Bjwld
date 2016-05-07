@@ -40,7 +40,8 @@ function love.load()
         height = 7,
         width = 7,
         cell_dim = 7,
-        cell_gutter = 1
+        cell_gutter = 1,
+        block_fall_speed = 2,
     }
 
     game.board = {
