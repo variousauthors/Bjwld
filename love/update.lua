@@ -72,46 +72,34 @@ function board_swap_cells(board, c1, c2)
     cells[y2][x2] = tmp
 end
 
-function love.update(dt)
-    local should_swap = false
-
-    --Update here
-
-    if (game.active_cursor.input ~= nil) then
-
-        update_cursor()
-
-        if (game.active_cursor.input == 'select') then
-            should_swap = toggle_cursor()
-        end
-    end
-
-    game.active_cursor.input = nil
-
-    if (should_swap) then
-        board_swap_cells(game.board, game.select_cursor, game.swap_cursor)
-
-        if (board_find_match(game.board, game.swap_cursor) or board_find_match(game.board, game.select_cursor)) then
-            -- NOP
-
-            game.select_cursor.x = game.swap_cursor.x
-            game.select_cursor.y = game.swap_cursor.y
-        else
-            -- the change was not significant, so unswap them
-            board_swap_cells(game.board, game.select_cursor, game.swap_cursor)
-        end
-
-    end
-
-    -- TODO check the board for rows or cols
-
-    board_update(game.board)
-end
-
 function board_find_match(board, p)
     local x = p.x
     local y = p.y
     local cell = board_get_cell(board, x, y)
+
+    if cell == nil then return false end
+
+    local color = cell.color
+
+    -- TODO this needs to be rewritten as a nice loop so that we can use nil cells
+    -- we can iterate over DIRECTIONS again
+    -- if any of the blocks is nil or the color doesn't match, abort the direction
+
+    -- matches like []X[]
+    for i = 1, #(DIRECTIONS), 1 do
+        local dir = DIRECTIONS[i]
+
+        -- check two neighbours
+
+    end
+
+    -- matches like X[][]
+    for i = 1, #(DIRECTIONS), 1 do
+        local dir = DIRECTIONS[i]
+
+        -- check up to two blocks in dir
+
+    end
 
     local left = board_get_cell(board, x + 1, y)
     local left2 = board_get_cell(board, x + 2, y)
@@ -132,17 +120,47 @@ end
 
 function board_update(board)
     local groups = board_all_matches(board)
+    local matches = #(groups)
 
-    -- clear matches
-    for i = 1, #(groups), 1 do
-        local group = groups[i]
+    if (board.stable) then
+        -- clear matches
+        for i = 1, #(groups), 1 do
+            local group = groups[i]
 
-        for j = 1, #(group), 1 do
-            local cell = group[j]
+            for j = 1, #(group), 1 do
+                local cell = group[j]
 
             game.board.cells[cell.y][cell.x] = 'empty'
         end
     end
+
+    -- start the physics
+    local cells = board.cells
+    local motion = false
+
+    board.stable = false
+
+    for y = #(cells), 1, -1 do
+        for x = 1, #(cells[y]), 1 do
+            local cell = cells[y][x]
+            local color = cell.color
+
+            if (color ~= nil) then
+                local below = board_get_cell(board, x, y + 1)
+
+                if (below.color == nil) then
+                    -- mark as falling
+                    -- empty the cell
+                    cells[y][x] = nil
+                    cells[y + 1][x] = cell
+
+                    motion = true
+                end
+            end
+        end
+    end
+
+    if (not motion) then board.stable = true end
 end
 
 function board_all_matches(board)
@@ -198,3 +216,40 @@ function board_get_cell(board, x, y)
 
     return cell
 end
+
+function love.update(dt)
+    local should_swap = false
+
+    --Update here
+
+    if (game.board.stable and game.active_cursor.input ~= nil) then
+
+        update_cursor()
+
+        if (game.active_cursor.input == 'select') then
+            should_swap = toggle_cursor()
+        end
+    end
+
+    game.active_cursor.input = nil
+
+    if (should_swap) then
+        board_swap_cells(game.board, game.select_cursor, game.swap_cursor)
+
+        if (board_find_match(game.board, game.swap_cursor) or board_find_match(game.board, game.select_cursor)) then
+            -- NOP
+
+            game.select_cursor.x = game.swap_cursor.x
+            game.select_cursor.y = game.swap_cursor.y
+        else
+            -- the change was not significant, so unswap them
+            board_swap_cells(game.board, game.select_cursor, game.swap_cursor)
+        end
+
+    end
+
+    -- TODO check the board for rows or cols
+
+    board_update(game.board)
+end
+

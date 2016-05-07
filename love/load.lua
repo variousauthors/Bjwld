@@ -81,4 +81,5 @@ function love.load()
         bad_board = #(groups) > 0
     end
 
+    game.board.stable = true
 end
