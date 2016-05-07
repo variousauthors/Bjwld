@@ -79,8 +79,6 @@ function board_find_match(board, p)
 
     if cell == nil then return false end
 
-    local color = cell.color
-
     -- TODO this needs to be rewritten as a nice loop so that we can use nil cells
     -- we can iterate over DIRECTIONS again
     -- if any of the blocks is nil or the color doesn't match, abort the direction
@@ -130,7 +128,8 @@ function board_update(board)
             for j = 1, #(group), 1 do
                 local cell = group[j]
 
-            game.board.cells[cell.y][cell.x] = 'empty'
+                game.board.cells[cell.y][cell.x] = EMPTY
+            end
         end
     end
 
@@ -142,16 +141,15 @@ function board_update(board)
 
     for y = #(cells), 1, -1 do
         for x = 1, #(cells[y]), 1 do
-            local cell = cells[y][x]
-            local color = cell.color
+            local cell = board_get_cell(board, x, y)
 
-            if (color ~= nil) then
+            if (cell ~= nil and cell ~= EMPTY) then
                 local below = board_get_cell(board, x, y + 1)
 
-                if (below.color == nil) then
+                if (below == EMPTY) then
                     -- mark as falling
                     -- empty the cell
-                    cells[y][x] = nil
+                    cells[y][x] = EMPTY
                     cells[y + 1][x] = cell
 
                     motion = true
@@ -219,8 +217,6 @@ end
 
 function love.update(dt)
     local should_swap = false
-
-    --Update here
 
     if (game.board.stable and game.active_cursor.input ~= nil) then
 
