@@ -77,7 +77,7 @@ function board_find_match(board, p)
     local y = p.y
     local cell = board_get_cell(board, x, y)
 
-    if cell == nil then return false end
+    if cell == nil or cell.color == EMPTY then return false end
 
     -- TODO this needs to be rewritten as a nice loop so that we can use nil cells
     -- we can iterate over DIRECTIONS again
@@ -99,19 +99,21 @@ function board_find_match(board, p)
 
     end
 
-    local left = board_get_cell(board, x + 1, y)
-    local left2 = board_get_cell(board, x + 2, y)
-    local right = board_get_cell(board, x - 1, y)
-    local right2 = board_get_cell(board, x - 2, y)
+    local left = board_get_cell_color(board, x + 1, y)
+    local left2 = board_get_cell_color(board, x + 2, y)
+    local right = board_get_cell_color(board, x - 1, y)
+    local right2 = board_get_cell_color(board, x - 2, y)
 
-    local up = board_get_cell(board, x, y + 1)
-    local up2 = board_get_cell(board, x, y + 2)
-    local down = board_get_cell(board, x, y - 1)
-    local down2 = board_get_cell(board, x, y - 2)
+    local up = board_get_cell_color(board, x, y + 1)
+    local up2 = board_get_cell_color(board, x, y + 2)
+    local down = board_get_cell_color(board, x, y - 1)
+    local down2 = board_get_cell_color(board, x, y - 2)
 
-    cross_match = (left == cell and right == cell) or (up == cell and down == cell)
-    x_match = (left == cell and left2 == cell) or (right == cell and right2 == cell)
-    y_match = (up == cell and up2 == cell) or (down == cell and down2 == cell)
+    local color = cell.color
+
+    cross_match = (left == color and right == color) or (up == color and down == color)
+    x_match = (left == color and left2 == color) or (right == color and right2 == color)
+    y_match = (up == color and up2 == color) or (down == color and down2 == color)
 
     return cross_match or x_match or y_match
 end
@@ -126,9 +128,9 @@ function board_update(board)
             local group = groups[i]
 
             for j = 1, #(group), 1 do
-                local cell = group[j]
+                local entry = group[j]
 
-                game.board.cells[cell.y][cell.x] = EMPTY
+                game.board.cells[entry.y][entry.x] = build_block({ color = EMPTY })
             end
         end
     end
@@ -143,13 +145,13 @@ function board_update(board)
         for x = 1, #(cells[y]), 1 do
             local cell = board_get_cell(board, x, y)
 
-            if (cell ~= nil and cell ~= EMPTY) then
+            if (cell ~= nil and cell.color ~= EMPTY) then
                 local below = board_get_cell(board, x, y + 1)
 
-                if (below == EMPTY) then
+                if (below ~= nil and below.color == EMPTY) then
                     -- mark as falling
                     -- empty the cell
-                    cells[y][x] = EMPTY
+                    cells[y][x] = build_block({ color = EMPTY })
                     cells[y + 1][x] = cell
 
                     motion = true
@@ -179,7 +181,7 @@ function board_all_matches(board)
                 local neighbour = board_get_cell(game.board, nx, ny)
                 local group = { build_entry(cell, x, y) }
 
-                while (neighbour and neighbour == cell) do
+                while (neighbour and neighbour.color == cell.color) do
                     table.insert(group, build_entry(neighbour, nx, ny))
 
                     nx = nx + dx
@@ -197,9 +199,9 @@ function board_all_matches(board)
     return groups
 end
 
-function build_entry(color, x, y)
+function build_entry(cell, x, y)
     return {
-         color = color,
+         cell = cell,
          x = x,
          y = y
     }
@@ -213,6 +215,20 @@ function board_get_cell(board, x, y)
     end
 
     return cell
+end
+
+function board_get_cell_color(board, x, y)
+    local color = nil
+
+    if (x > 0 and x < board.width + 1) and (y > 0 and y < board.height + 1) then
+        local cell = board.cells[y][x]
+
+        if cell ~= nil then
+            color = cell.color
+        end
+    end
+
+    return color
 end
 
 function love.update(dt)

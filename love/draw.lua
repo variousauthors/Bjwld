@@ -3,32 +3,32 @@ love.viewport = require('libs/viewport').newSingleton()
 function draw_board(cells)
     love.graphics.push()
 
-    local w = game.constants.cell_dim
-    local h = game.constants.cell_dim
-    local gutter = game.constants.cell_gutter
-
     for y = 1, #(cells), 1 do
         for x = 1, #(cells[y]), 1 do
-
-            local cell = cells[y][x]
-            local x = (x * gutter) + ((x - 1) * w)
-            local y = (y * gutter) + ((y - 1) * h)
-
-            if cell == EMPTY then
-
-                love.graphics.setColor({ 50, 50, 50 })
-                love.graphics.rectangle("fill", x + w/2 - 0.5, y + h/2 - 0.5, 1, 1)
-            else
-
-                local color = COLOR_RGB[COLORS[cell]]
-
-                love.graphics.setColor(color)
-                love.graphics.rectangle("fill", x, y, w, h)
-            end
+            cell_draw(cells[y][x], x, y)
         end
     end
 
     love.graphics.pop()
+end
+
+function cell_draw(cell, x, y)
+    local w = game.constants.cell_dim
+    local h = game.constants.cell_dim
+    local gutter = game.constants.cell_gutter
+    local x = (x * gutter) + ((x - 1) * w)
+    local y = (y * gutter) + ((y - 1) * h)
+
+    if cell.color == EMPTY then
+
+        love.graphics.setColor({ 50, 50, 50 })
+        love.graphics.rectangle("fill", x + w/2 - 0.5, y + h/2 - 0.5, 1, 1)
+    else
+        local color = COLOR_RGB[COLORS[cell.color]]
+
+        love.graphics.setColor(color)
+        love.graphics.rectangle("fill", x, y, w, h)
+    end
 end
 
 function draw_cursor(cursor)
