@@ -5,19 +5,19 @@ function draw_board(cells)
 
     for y = 1, #(cells), 1 do
         for x = 1, #(cells[y]), 1 do
-            cell_draw(cells[y][x], x, y)
+            cell_draw(cells[y][x])
         end
     end
 
     love.graphics.pop()
 end
 
-function cell_draw(cell, x, y)
+function cell_draw(cell)
     local w = game.constants.cell_dim
     local h = game.constants.cell_dim
     local gutter = game.constants.cell_gutter
-    local x = (x * gutter) + ((x - 1) * w)
-    local y = (y * gutter) + ((y - 1) * h)
+    local x = (cell.drawable.x * gutter) + ((cell.drawable.x - 1) * w)
+    local y = (cell.drawable.y * gutter) + ((cell.drawable.y - 1) * h)
 
     if cell.color == EMPTY then
 

@@ -58,18 +58,24 @@ function toggle_cursor()
     return should_swap
 end
 
-function board_swap_cells(board, c1, c2)
-    local x1 = c1.x
-    local y1 = c1.y
+function board_swap_cells(board, a, b)
+    local x1 = a.x
+    local y1 = a.y
 
-    local x2 = c2.x
-    local y2 = c2.y
+    local x2 = b.x
+    local y2 = b.y
 
     local cells = board.cells
 
     local tmp = cells[y1][x1]
+    local cell = cells[y2][x2]
     cells[y1][x1] = cells[y2][x2]
     cells[y2][x2] = tmp
+
+    tmp.drawable.x = x2
+    tmp.drawable.y = y2
+    cell.drawable.x = x1
+    cell.drawable.y = y1
 end
 
 function board_find_match(board, p)
@@ -118,7 +124,7 @@ function board_find_match(board, p)
     return cross_match or x_match or y_match
 end
 
-function board_update(board)
+function board_update(board, dt)
     local groups = board_all_matches(board)
     local matches = #(groups)
 
@@ -146,6 +152,8 @@ function board_update(board)
             local cell = board_get_cell(board, x, y)
 
             if (cell ~= nil and cell.color ~= EMPTY) then
+
+                -- check if we need to start the cell moving
                 local below = board_get_cell(board, x, y + 1)
 
                 if (below ~= nil and below.color == EMPTY) then
@@ -154,6 +162,29 @@ function board_update(board)
                     cells[y][x] = build_block({ color = EMPTY })
                     cells[y + 1][x] = cell
 
+                    cell.motion = {
+                        x = x, y = y + 1
+                    }
+
+                end
+
+                -- update the cells draw position based on the motion
+
+                if cell.motion ~= nil then
+                    local nx = adjust(cell.drawable.x, cell.motion.x)
+                    local ny = adjust(cell.drawable.y, cell.motion.y)
+
+                    cell.drawable.x = cell.drawable.x + nx * dt
+                    cell.drawable.y = cell.drawable.y + ny * dt
+
+                    local dist = math.pow(cell.motion.x - cell.drawable.x, 2) + math.pow(cell.motion.y - cell.drawable.y, 2)
+
+                    if dist < (dt / 10) then
+                        cell.drawable.x = cell.motion.x
+                        cell.drawable.y = cell.motion.y
+                        cell.motion = nil
+                    end
+
                     motion = true
                 end
             end
@@ -161,6 +192,17 @@ function board_update(board)
     end
 
     if (not motion) then board.stable = true end
+end
+
+function adjust (start, last)
+    local n = 0
+    local diff = last - start
+
+    if diff ~= 0 then
+        n = diff / math.abs(diff)
+    end
+
+    return n
 end
 
 function board_all_matches(board)
@@ -262,6 +304,6 @@ function love.update(dt)
 
     -- TODO check the board for rows or cols
 
-    board_update(game.board)
+    board_update(game.board, dt)
 end
 

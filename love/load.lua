@@ -70,7 +70,11 @@ function love.load()
             game.board.cells[y] = {}
 
             for x = 1, game.constants.width, 1 do
-                game.board.cells[y][x] = build_block()
+                local cell = build_block()
+                cell.drawable.x = x
+                cell.drawable.y = y
+
+                game.board.cells[y][x] = cell
             end
         end
 
@@ -89,6 +93,7 @@ function build_block (options)
     local color = options.color or get_random_color()
 
     return {
-        color = color
+        color = color,
+        drawable = { x = 0, y = 0 }
     }
 end
