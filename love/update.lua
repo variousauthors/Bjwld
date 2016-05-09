@@ -181,7 +181,7 @@ function board_update(board, dt)
 
                 end
 
-                -- update the cells draw position based on the motion
+                -- update the cell's draw position based on the motion
 
                 if cell.motion ~= nil then
                     local nx = adjust(cell.drawable.x, cell.motion.x)

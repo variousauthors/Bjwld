@@ -92,9 +92,11 @@ end
 function build_block (options)
     local options = options or {}
     local color = options.color or get_random_color()
+    local attributes = options.attributes or {}
 
     return {
         color = color,
-        drawable = { x = 0, y = 0 }
+        drawable = { x = 0, y = 0 },
+        attributes = attributes
     }
 end
