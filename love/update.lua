@@ -152,54 +152,10 @@ function board_update(board, dt)
         for x = 1, #(cells[y]), 1 do
             local cell = board_get_cell(board, x, y)
 
-            -- check for empty cells at the top of the board
-            if y == 1 then
-                if cell ~= nil and cell.color == EMPTY then
-                    cell = build_block()
-                    cell.drawable.x = x
-                    cell.drawable.y = y - 1
-                    cell.motion = { x = x, y = y }
+            cell, x, y = cell_update(cell, board, x, y, dt)
 
-                    cells[y][x] = cell
-                end
-            end
-
-            if (cell ~= nil and cell.color ~= EMPTY) then
-
-                -- check if we need to start the cell moving
-                local below = board_get_cell(board, x, y + 1)
-
-                if (below ~= nil and below.color == EMPTY) then
-                    -- mark as falling
-                    -- empty the cell
-                    cells[y][x] = build_block({ color = EMPTY })
-                    cells[y + 1][x] = cell
-
-                    cell.motion = {
-                        x = x, y = y + 1
-                    }
-
-                end
-
-                -- update the cell's draw position based on the motion
-
-                if cell.motion ~= nil then
-                    local nx = adjust(cell.drawable.x, cell.motion.x)
-                    local ny = adjust(cell.drawable.y, cell.motion.y)
-
-                    cell.drawable.x = cell.drawable.x + nx * dt * game.constants.block_fall_speed
-                    cell.drawable.y = cell.drawable.y + ny * dt * game.constants.block_fall_speed
-
-                    local dist = math.pow(cell.motion.x - cell.drawable.x, 2) + math.pow(cell.motion.y - cell.drawable.y, 2)
-
-                    if dist < (dt / 10) then
-                        cell.drawable.x = cell.motion.x
-                        cell.drawable.y = cell.motion.y
-                        cell.motion = nil
-                    end
-
-                    motion = true
-                end
+            if cell.motion ~= nil then
+                motion = true
             end
         end
     end
@@ -320,3 +276,57 @@ function love.update(dt)
     board_update(game.board, dt)
 end
 
+function cell_update(cell, board, x, y, dt)
+    local cells = board.cells
+
+    -- check for empty cells at the top of the board and replace them
+    --          if y == 1 then
+    --              if cell ~= nil and cell.color == EMPTY then
+    --                  cell = build_block()
+    --                  cell.drawable.x = x
+    --                  cell.drawable.y = y - 1
+    --                  cell.motion = { x = x, y = y }
+
+    --                  cells[y][x] = cell
+    --              end
+    --          end
+
+    if (cell ~= nil and cell.color ~= EMPTY) then
+
+        -- check if we need to start the cell moving
+        local below = board_get_cell(board, x, y + 1)
+
+        if (below ~= nil and below.color == EMPTY) then
+            -- mark as falling
+            -- empty the cell
+            cells[y][x] = build_block({ color = EMPTY })
+
+            x = x
+            y = y + 1
+
+            cells[y][x] = cell
+
+            cell.motion = { x = x, y = y }
+        end
+
+        -- update the cell's draw position based on the motion
+
+        if cell.motion ~= nil then
+            local nx = adjust(cell.drawable.x, cell.motion.x)
+            local ny = adjust(cell.drawable.y, cell.motion.y)
+
+            cell.drawable.x = cell.drawable.x + nx * dt * game.constants.block_fall_speed
+            cell.drawable.y = cell.drawable.y + ny * dt * game.constants.block_fall_speed
+
+            local dist = math.pow(cell.motion.x - cell.drawable.x, 2) + math.pow(cell.motion.y - cell.drawable.y, 2)
+
+            if dist < (dt / 10) then
+                cell.drawable.x = cell.motion.x
+                cell.drawable.y = cell.motion.y
+                cell.motion = nil
+            end
+        end
+    end
+
+    return cell, x, y
+end
