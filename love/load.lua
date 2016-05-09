@@ -44,10 +44,6 @@ function love.load()
         block_fall_speed = 2,
     }
 
-    game.board = {
-        cells = {}
-    }
-
     game.select_cursor = {
         x = math.ceil(game.constants.width / 2),
         y = math.ceil(game.constants.height / 2),
@@ -64,29 +60,38 @@ function love.load()
 
     game.active_cursor = game.select_cursor
 
+    game.board = build_board()
+    game.board.stable = true
+
+end
+
+function build_board (options)
+    local options = options or {}
+    local board = { cells = {} }
     local bad_board = true
 
+    board.height = game.constants.height
+    board.width = game.constants.width
+
     while (bad_board) do
-        for y = 1, game.constants.height, 1 do
-            game.board.cells[y] = {}
+        -- the top half is the buffer
+        for y = 1, 2*game.constants.height, 1 do
+            board.cells[y] = {}
 
             for x = 1, game.constants.width, 1 do
                 local cell = build_block()
                 cell.drawable.x = x
                 cell.drawable.y = y
 
-                game.board.cells[y][x] = cell
+                board.cells[y][x] = cell
             end
         end
 
-        game.board.height = #(game.board.cells)
-        game.board.width = #(game.board.cells[1])
-
-        local groups = board_all_matches(game.board)
+        local groups = board_all_matches(board)
         bad_board = #(groups) > 0
     end
 
-    game.board.stable = true
+    return board
 end
 
 function build_block (options)

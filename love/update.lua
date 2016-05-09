@@ -141,14 +141,13 @@ function board_update(board, dt)
         end
     end
 
-    -- start the physics
+    -- update the cells
     local cells = board.cells
     local motion = false
 
     board.stable = false
 
     for y = #(cells), 1, -1 do
-
         for x = 1, #(cells[y]), 1 do
             local cell = board_get_cell(board, x, y)
 
@@ -189,7 +188,7 @@ function board_all_matches(board)
                 local nx = x + dx
                 local ny = y + dy
 
-                local neighbour = board_get_cell(game.board, nx, ny)
+                local neighbour = board_get_cell(board, nx, ny)
                 local group = { build_entry(cell, x, y) }
 
                 while (neighbour and neighbour.color == cell.color) do
@@ -197,7 +196,7 @@ function board_all_matches(board)
 
                     nx = nx + dx
                     ny = ny + dy
-                    neighbour = board_get_cell(game.board, nx, ny)
+                    neighbour = board_get_cell(board, nx, ny)
                 end
 
                 if #(group) > 2 then
