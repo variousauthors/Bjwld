@@ -165,6 +165,21 @@ function board_update(board, dt)
         end
     end
 
+    for y = 1 , board.height, 1 do
+        for x = 1, #(cells[y]), 1 do
+            local cell = cells[y][x]
+
+            if cell.color == EMPTY then
+                cell = build_block()
+                cell.drawable.x = x
+                cell.drawable.y = y - 1
+                cell.motion = { x = x, y = y }
+
+                cells[y][x] = cell
+            end
+        end
+    end
+
     if (not motion) then board.stable = true end
 end
 

@@ -3,7 +3,7 @@ love.viewport = require('libs/viewport').newSingleton()
 function board_draw(cells)
     love.graphics.push()
 
-    for y = 1, #(cells), 1 do
+    for y = game.board.height + 1, #(cells), 1 do
         for x = 1, #(cells[y]), 1 do
             cell_draw(cells[y][x])
         end
