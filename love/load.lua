@@ -46,7 +46,7 @@ function love.load()
 
     game.select_cursor = {
         x = math.ceil(game.constants.width / 2),
-        y = math.ceil(game.constants.height / 2),
+        y = math.ceil(3*game.constants.height / 2),
         active = true,
         input = nil,
     }

@@ -1,6 +1,6 @@
 love.viewport = require('libs/viewport').newSingleton()
 
-function draw_board(cells)
+function board_draw(cells)
     love.graphics.push()
 
     for y = 1, #(cells), 1 do
@@ -71,7 +71,7 @@ function love.draw()
     love.graphics.push()
     love.graphics.scale(game.scale, game.scale)
 
-    draw_board(game.board.cells)
+    board_draw(game.board.cells)
 
     draw_cursor(game.select_cursor)
 

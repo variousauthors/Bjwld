@@ -1,12 +1,18 @@
 
+function board_in_bounds (board, x, y)
+
+    return board_get_cell(board, x, y) ~= nil
+end
+
 function update_cursor()
+    local active = game.active_cursor
     if (game.select_cursor.active == true) then
         -- move the select cursor freely around the board
 
-        if (game.active_cursor.input == 'up') then game.active_cursor.y = game.active_cursor.y - 1 end
-        if (game.active_cursor.input == 'down') then game.active_cursor.y = game.active_cursor.y + 1 end
-        if (game.active_cursor.input == 'left') then game.active_cursor.x = game.active_cursor.x - 1 end
-        if (game.active_cursor.input == 'right') then game.active_cursor.x = game.active_cursor.x + 1 end
+        if (active.input == 'up') and (board_in_bounds(game.board, active.x, active.y - 1)) then game.active_cursor.y = game.active_cursor.y - 1 end
+        if (active.input == 'down') and (board_in_bounds(game.board, active.x, active.y + 1)) then game.active_cursor.y = game.active_cursor.y + 1 end
+        if (active.input == 'left') and (board_in_bounds(game.board, active.x - 1 , active.y)) then game.active_cursor.x = game.active_cursor.x - 1 end
+        if (active.input == 'right') and (board_in_bounds(game.board, active.x + 1, active.y)) then game.active_cursor.x = game.active_cursor.x + 1 end
 
     elseif (game.swap_cursor.active == true) then
         -- set the swap cursor to a cardinal offset from the select cursor
@@ -149,7 +155,7 @@ function board_update(board, dt)
 
     for y = #(cells), 1, -1 do
         for x = 1, #(cells[y]), 1 do
-            local cell = board_get_cell(board, x, y)
+            local cell = cells[y][x]
 
             cell, x, y = cell_update(cell, board, x, y, dt)
 
@@ -177,7 +183,7 @@ function board_all_matches(board)
     local cells = board.cells
     local groups = {}
 
-    for y = 1, #(cells), 1 do
+    for y = board.height, #(cells), 1 do
         for x = 1, #(cells[y]), 1 do
             local cell = cells[y][x]
 
@@ -220,7 +226,7 @@ end
 function board_get_cell(board, x, y)
     local cell = nil
 
-    if (x > 0 and x < board.width + 1) and (y > 0 and y < board.height + 1) then
+    if (x > 0 and x < board.width + 1) and (y > board.height and y < #(board.cells) + 1) then
         cell = board.cells[y][x]
     end
 
@@ -229,13 +235,10 @@ end
 
 function board_get_cell_color(board, x, y)
     local color = nil
+    local cell = board_get_cell(board, x, y)
 
-    if (x > 0 and x < board.width + 1) and (y > 0 and y < board.height + 1) then
-        local cell = board.cells[y][x]
-
-        if cell ~= nil then
-            color = cell.color
-        end
+    if cell ~= nil then
+        color = cell.color
     end
 
     return color
@@ -245,6 +248,7 @@ function love.update(dt)
     local should_swap = false
 
     if (game.board.stable and game.active_cursor.input ~= nil) then
+        print("STABLE & INPUT")
 
         update_cursor()
 
@@ -256,9 +260,11 @@ function love.update(dt)
     game.active_cursor.input = nil
 
     if (should_swap) then
+        print("SHOULD")
         board_swap_cells(game.board, game.select_cursor, game.swap_cursor)
 
         if (board_find_match(game.board, game.swap_cursor) or board_find_match(game.board, game.select_cursor)) then
+            print("  SHOULD")
             -- NOP
 
             game.select_cursor.x = game.swap_cursor.x
@@ -293,7 +299,7 @@ function cell_update(cell, board, x, y, dt)
     if (cell ~= nil and cell.color ~= EMPTY) then
 
         -- check if we need to start the cell moving
-        local below = board_get_cell(board, x, y + 1)
+        local below = cells[y + 1] and cells[y + 1][x]
 
         if (below ~= nil and below.color == EMPTY) then
             -- mark as falling
