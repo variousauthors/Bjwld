@@ -1,5 +1,82 @@
 love.viewport = require('libs/viewport').newSingleton()
 
+function board_draw(cells)
+    love.graphics.push()
+
+    for y = game.board.height + 1, #(cells), 1 do
+        for x = 1, #(cells[y]), 1 do
+            cell_draw(cells[y][x])
+        end
+    end
+
+    love.graphics.pop()
+end
+
+function cell_draw(cell)
+    local w = game.constants.cell_dim
+    local h = game.constants.cell_dim
+    local gutter = game.constants.cell_gutter
+    local x = (cell.drawable.x * gutter) + ((cell.drawable.x - 1) * w)
+    local y = (cell.drawable.y * gutter) + ((cell.drawable.y - 1) * h)
+
+    if cell.color == EMPTY then
+
+        love.graphics.setColor({ 50, 50, 50 })
+        love.graphics.rectangle("fill", x + w/2 - 0.5, y + h/2 - 0.5, 1, 1)
+    else
+        local color = COLOR_RGB[COLORS[cell.color]]
+
+        love.graphics.setColor(color)
+        love.graphics.rectangle("fill", x, y, w, h)
+    end
+end
+
+function draw_cursor(cursor)
+    love.graphics.push()
+
+    local w = game.constants.cell_dim
+    local h = game.constants.cell_dim
+    local gutter = game.constants.cell_gutter
+
+    local x = cursor.x
+    local y = cursor.y
+
+    x = x * gutter + ((x - 1) * w)
+    y = y * gutter + ((y - 1) * h)
+
+    love.graphics.setColor({ 250, 250, 250 })
+
+    -- A CURSOR
+
+    -- TOP LEFT
+    love.graphics.line(x, y, x, y + 2)
+    love.graphics.line(x, y, x + 2, y)
+
+    -- TOP RIGHT
+    love.graphics.line(x + w, y, x + w, y + 2)
+    love.graphics.line(x + w, y, x + w - 2, y)
+
+    -- BOTTOM LEFT
+    love.graphics.line(x, y + h, x, y + h - 2)
+    love.graphics.line(x, y + h, x + 2, y + h)
+
+    -- BOTTOM RIGHT
+    love.graphics.line(x + w, y + h, x + w, y + h - 2)
+    love.graphics.line(x + w, y + h, x + w - 2, y + h)
+
+    love.graphics.pop()
+end
+
 function love.draw()
-    -- Draw here
+    love.graphics.push()
+    love.graphics.scale(game.scale, game.scale)
+
+    board_draw(game.board.cells)
+
+    draw_cursor(game.select_cursor)
+
+    if (game.swap_cursor.active == true) then draw_cursor(game.swap_cursor) end
+
+    love.graphics.scale(1)
+    love.graphics.pop()
 end
